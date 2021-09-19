@@ -1,0 +1,103 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Default Local Group
+  m_EditorClassIdentifier: 
+  m_GroupName: Default Local Group
+  m_Data:
+    m_SerializedData: []
+  m_GUID: db8d08521193c49ee8cfe103ff5695b4
+  m_SerializeEntries:
+  - m_GUID: 8a5b8bcc8bbbce541a83c2a68d8b9024
+    m_Address: Assets/Icon/donat3_image.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: 0b5e680376481a14ba7a885fe432efee
+    m_Address: Assets/Icon/chest3.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: 03b9e0089029dea499ee672e62bf2392
+    m_Address: Assets/Icon/chest2.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: a1dacb15a5d8fb249b240b56004a5004
+    m_Address: Assets/Icon/chest1.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: 133c7e85be083f54bae68f5c3a7458c3
+    m_Address: Assets/Icon/donat1_image.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: b3a59e7e5f5076848a13f492613168cd
+    m_Address: Assets/Icon/chest5.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: bfa33f538d32aad40978f288695d63d4
+    m_Address: Assets/Icon/donat5_image.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: 9461adadc31aab24693531020f3f7077
+    m_Address: Assets/Icon/chest6.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: 7f52d68d2ebb3d648b46d7bbb2698f94
+    m_Address: Assets/Icon/chest4.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: ffb3c986b8e3360469c4749c03cfbfa7
+    m_Address: Assets/Icon/donat4_image.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: cc36de7bbfc0aca4f85dd0f2cd34ad6e
+    m_Address: Assets/Icon/donat2_image.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: 87199b8f92c2cba44ac03ce1aa4ce5de
+    m_Address: Assets/Icon/donat_icon.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: 3f13483aed4c047428b5bd412db67d23
+    m_Address: Assets/StoreDemo/Icon/coin_icon.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 946122fb683884ba0aa510cd7f538a73, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: cdfae473d53b845728669eab7470e72b, type: 2}
+    - {fileID: 11400000, guid: 3627ef945718d4531beb7fe40bd5afed, type: 2}
