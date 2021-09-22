@@ -10,6 +10,12 @@ namespace Balancy.Models
 
 
 
+		[JsonProperty("slotMask")]
+		public readonly SlotType SlotMask;
+
+		[JsonProperty("icon")]
+		public readonly UnnyAsset Icon;
+
 		[JsonProperty("name")]
 		public readonly string Name;
 
@@ -18,12 +24,6 @@ namespace Balancy.Models
 
 		[JsonProperty("maxStack")]
 		public readonly int MaxStack;
-
-		[JsonProperty("icon")]
-		public readonly UnnyAsset Icon;
-
-		[JsonProperty("slotMask")]
-		public readonly SlotType SlotMask;
 
 	}
 #pragma warning restore 649

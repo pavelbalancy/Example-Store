@@ -13,24 +13,6 @@ namespace Balancy.Models
 		private ConditionBase[] conditions;
 
 
-		[JsonProperty("name")]
-		public readonly string Name;
-
-		[JsonProperty("price")]
-		public readonly ItemWithAmount Price;
-
-		[JsonProperty("icon")]
-		public readonly UnnyAsset Icon;
-
-		[JsonProperty("order")]
-		public readonly int Order;
-
-		[JsonProperty("items")]
-		public readonly ItemWithAmount[] Items;
-
-		[JsonProperty("inAppId")]
-		public readonly string InAppId;
-
 		[JsonIgnore]
 		public ConditionBase[] Conditions
 		{
@@ -46,6 +28,24 @@ namespace Balancy.Models
 				return conditions;
 			}
 		}
+
+		[JsonProperty("items")]
+		public readonly ItemWithAmount[] Items;
+
+		[JsonProperty("inAppId")]
+		public readonly string InAppId;
+
+		[JsonProperty("order")]
+		public readonly int Order;
+
+		[JsonProperty("name")]
+		public readonly string Name;
+
+		[JsonProperty("icon")]
+		public readonly UnnyAsset Icon;
+
+		[JsonProperty("price")]
+		public readonly ItemWithAmount Price;
 
 	}
 #pragma warning restore 649

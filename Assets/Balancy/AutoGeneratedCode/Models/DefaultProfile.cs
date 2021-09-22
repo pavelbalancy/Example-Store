@@ -16,9 +16,6 @@ namespace Balancy.Models
 		private InventoryConfig inventory;
 
 
-		[JsonProperty("startResources")]
-		public readonly ItemWithAmount[] StartResources;
-
 		[JsonIgnore]
 		public InventoryConfig Resources
 		{
@@ -40,6 +37,9 @@ namespace Balancy.Models
 				return inventory;
 			}
 		}
+
+		[JsonProperty("startResources")]
+		public readonly ItemWithAmount[] StartResources;
 
 	}
 #pragma warning restore 649

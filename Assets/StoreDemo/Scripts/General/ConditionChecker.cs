@@ -53,6 +53,12 @@ public class ConditionChecker
                     return false;
                 break;
             }
+            case ConditionGemsCount _conditionGemsCount:
+            {
+                if ((profile.GetGems() >= _conditionGemsCount.Gems) == condition.Inverse)
+                    return false;
+                break;
+            }
         }
         
         return true;
