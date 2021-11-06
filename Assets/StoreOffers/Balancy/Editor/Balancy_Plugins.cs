@@ -12,19 +12,19 @@ using Balancy.Editor;
 
 public class Balancy_Plugins
 {
-    private const string PLUGINS_LOCAL_FOLDER = "Assets/Balancy/";
-    private const string PLUGINS_ADDRESS_LOCAL = "Assets/Balancy/Editor/plugins.json";
-    private const string PLUGINS_ADDRESS_ORIGINAL = "Assets/Balancy/Editor/balancy_plugins.json";
+    private static string PLUGINS_LOCAL_FOLDER = "Assets/Balancy/";
+    private static string PLUGINS_ADDRESS_LOCAL => PLUGINS_LOCAL_FOLDER + "Editor/plugins.json";
+    private static string PLUGINS_ADDRESS_ORIGINAL => PLUGINS_LOCAL_FOLDER + "Editor/balancy_plugins.json";
+    private static string JSON_PATH => PLUGINS_LOCAL_FOLDER + "balancy.data.json";
+
 #if LOCAL_PLUGINS_TEST
     private const string PLUGINS_ADDRESS_REMOTE = "Assets/balancy_plugins_remote.json";
 #else
     private const string PLUGINS_ADDRESS_REMOTE = "https://dictionaries-unnynet.fra1.cdn.digitaloceanspaces.com/config/balancy_plugins.json";
 #endif
     
-    
-    
     private const string CODE_GENERATION_PLUGIN = "Balancy";
-    private const string CODE_GENERATION_FILE = "Assets/Balancy/Scripts/BalancyMain.cs";
+    private static string CODE_GENERATION_FILE => PLUGINS_LOCAL_FOLDER + "Scripts/BalancyMain.cs";
 
     private static readonly GUIStyle LABEL_WRAP = new GUIStyle(GUI.skin.GetStyle("label")) {wordWrap = true};
     private static readonly GUIStyle LABEL_BOLD = new GUIStyle(GUI.skin.GetStyle("label")) {fontStyle = FontStyle.Bold};
@@ -37,6 +37,8 @@ public class Balancy_Plugins
     private static Action<PluginInfo> onUpdatePluginInfo;
     private static Action<PluginInfo> onRemovePluginInfo;
     private static Action onRedraw;
+
+    public string JsonPath => JSON_PATH;
 
     enum Status
     {
@@ -430,8 +432,9 @@ public class Balancy_Plugins
         onUpdatePluginInfo = UpdateLocalPluginInfo;
         onRemovePluginInfo = RemoveLocalPluginInfo;
         onRedraw = parent.Repaint;
-        
-        Refresh();
+        PLUGINS_LOCAL_FOLDER = GetLocalPath(parent);
+
+        // Refresh();
     }
 
     private void UpdateLocalPluginInfo(PluginInfo pluginInfo)
@@ -684,6 +687,17 @@ public class Balancy_Plugins
 #else
         EditorCoroutineHelper.Execute(LoadRemoteConfig());
 #endif
+    }
+    
+    private string GetLocalPath(ScriptableObject script)
+    {
+        MonoScript ms = MonoScript.FromScriptableObject( script );
+        var scriptFilePath = AssetDatabase.GetAssetPath( ms );
+
+        var scriptFolder = scriptFilePath.Substring(0, scriptFilePath.LastIndexOf("/", StringComparison.Ordinal));
+        var balancyFolder = scriptFolder.Substring(0, scriptFolder.LastIndexOf("/", StringComparison.Ordinal) + 1);
+        
+        return balancyFolder;
     }
 
     private void SynchVersionsFromOriginalFile()

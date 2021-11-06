@@ -5,7 +5,7 @@ namespace Balancy.Data
 {
 #pragma warning disable 649
 
-	public class Profile : BaseData
+	public class Profile : ParentBaseData
 	{
 		[JsonProperty("resources")]
 		private Inventory resources;

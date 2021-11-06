@@ -22,7 +22,7 @@ public static class GameProgress
                 GlobalEvents.InvokeProfileInitialized(profile);
             } else
                 Debug.LogError("Error: " + responseData.Error.Message);
-        });
+        }, Constants.DataSynchType.OnlyLocal);
     }
 
     public static Profile GetCurrentProgress()

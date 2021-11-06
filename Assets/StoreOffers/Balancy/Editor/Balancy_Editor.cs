@@ -95,20 +95,21 @@ namespace Balancy.Editor
             public bool AutoDownloadDictionaries;
         }
         
-        const string JSON_PATH = "Assets/Balancy/balancy.data.json";
         readonly string[] SERVER_TYPE = {"Development", "Stage", "Production"};
         private Balancy_Plugins plugins;
         
-        private static BalancySettings _settings;
-        private static string _apiGameId;
-        private static string _privateKey;
-        private static string _publicKey;
-        private static bool _autoDownloadDictionaries;
-        private static int _selectedServer;
-        private static bool _downloading;
-        private static float _downloadingProgress;
-        private static string _downloadingFileName;
+        private BalancySettings _settings;
+        private string _apiGameId;
+        private string _privateKey;
+        private string _publicKey;
+        private bool _autoDownloadDictionaries;
+        private int _selectedServer;
+        private bool _downloading;
+        private float _downloadingProgress;
+        private string _downloadingFileName;
 
+        private string _jsonPath => Plugins.JsonPath;
+        
         private Balancy_Plugins Plugins
         {
             get
@@ -119,20 +120,19 @@ namespace Balancy.Editor
             }
         }
         
-        private static void SaveUnnyJson()
+        private void SaveUnnyJson()
         {
             string finalString = JsonUtility.ToJson(_settings);
 
-            Balancy.Utils.CheckAndCreateDirectoryForFile(JSON_PATH);
-            StreamWriter writer = new StreamWriter(JSON_PATH, false);
+            Balancy.Utils.CheckAndCreateDirectoryForFile(_jsonPath);
+            StreamWriter writer = new StreamWriter(_jsonPath, false);
             writer.WriteLine(finalString);
             writer.Close();
-            AssetDatabase.ImportAsset(JSON_PATH);
+            AssetDatabase.ImportAsset(_jsonPath);
         }
-
+        
         private void OnEnable()
         {
-            PrepareSettings();
             EditorApplication.update += update;
         }
         
@@ -147,8 +147,11 @@ namespace Balancy.Editor
                 Repaint();
         }
 
-        private static void PrepareSettings()
+        private void PrepareSettings()
         {
+            if (_settings != null)
+                return;
+            
             _settings = CreateOrLoadUnnyJson();
             _apiGameId = _settings.ApiGameId;
             _privateKey = _settings.PrivateKey;
@@ -156,14 +159,16 @@ namespace Balancy.Editor
             _autoDownloadDictionaries = _settings.AutoDownloadDictionaries;
         }
 
-        public static BalancySettings CreateOrLoadUnnyJson()
+        public BalancySettings CreateOrLoadUnnyJson()
         {
-            TextAsset textAsset = (TextAsset)AssetDatabase.LoadAssetAtPath(JSON_PATH, typeof(TextAsset));
+            TextAsset textAsset = (TextAsset)AssetDatabase.LoadAssetAtPath(_jsonPath, typeof(TextAsset));
             return textAsset == null ? new BalancySettings() : JsonUtility.FromJson<BalancySettings>(textAsset.text);
         }
 
         private void OnGUI()
         {
+            PrepareSettings();
+
             GUI.enabled = !_downloading;
             
             RenderSettings();
@@ -256,7 +261,7 @@ namespace Balancy.Editor
             GUILayout.EndVertical();
         }
 
-        private static void StartCodeGeneration()
+        private void StartCodeGeneration()
         {
             _downloading = true;
             _downloadingProgress = 0.5f;
@@ -264,7 +269,7 @@ namespace Balancy.Editor
             Balancy_CodeGeneration.StartGeneration(_settings.ApiGameId, _settings.PublicKey, (Constants.Environment) _selectedServer, () => { _downloading = false; });
         }
         
-        private static void StartSynchingAddressables()
+        private void StartSynchingAddressables()
         {
             if (SynchAddressablesEvent == null)
             {
@@ -296,7 +301,7 @@ namespace Balancy.Editor
             }
         }
 
-        private static void StartDownloading()
+        private void StartDownloading()
         {
             _downloading = true;
             _downloadingProgress = 0;
