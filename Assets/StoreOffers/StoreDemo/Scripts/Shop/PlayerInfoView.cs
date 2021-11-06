@@ -50,6 +50,6 @@ public class PlayerInfoView : MonoBehaviour
 
     private void Refresh(Profile profile)
     {
-        _text.text = profile.Level.ToString();
+        _text.text = profile.Statistics.Level.ToString();
     }
 }

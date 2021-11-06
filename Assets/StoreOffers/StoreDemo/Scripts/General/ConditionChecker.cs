@@ -43,13 +43,13 @@ public class ConditionChecker
         {
             case ConditionPlayerLevel _conditionPlayerLevel:
             {
-                if ((profile.Level >= _conditionPlayerLevel.Level) == condition.Inverse)
+                if ((profile.Statistics.Level >= _conditionPlayerLevel.Level) == condition.Inverse)
                     return false;
                 break;
             }
             case ConditionPurchasesCount _conditionPurchasesCount:
             {
-                if ((profile.Purchases.Count >= _conditionPurchasesCount.MinPurchases) == condition.Inverse)
+                if ((profile.Statistics.Purchases.Count >= _conditionPurchasesCount.MinPurchases) == condition.Inverse)
                     return false;
                 break;
             }

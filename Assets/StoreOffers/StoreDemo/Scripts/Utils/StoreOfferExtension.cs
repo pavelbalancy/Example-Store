@@ -26,7 +26,7 @@ public static class StoreOfferExtension
         var info = PurchaseInfo.Instantiate();
         info.Offer = storeOffer;
         info.Time = (int) UnnyTime.GetServerTime();
-        profile.Purchases.Add(info);
+        profile.Statistics.Purchases.Add(info);
     }
 
     private static void GiveItems(this StoreOffer storeOffer)

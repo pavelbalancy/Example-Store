@@ -9,10 +9,8 @@ namespace Balancy.Data
 	{
 		[JsonProperty("resources")]
 		private Inventory resources;
-		[JsonProperty("itemSlots"), JsonConverter(typeof(SmartListConverter<PurchaseInfo>))]
-		private SmartList<PurchaseInfo> purchases;
-		[JsonProperty("level")]
-		private int level;
+		[JsonProperty("statistics")]
+		private Statistics statistics;
 		
 		[JsonIgnore]
 		public Inventory Resources
@@ -22,13 +20,10 @@ namespace Balancy.Data
 		}
 		
 		[JsonIgnore]
-		public SmartList<PurchaseInfo> Purchases { get { return purchases;} }
-		
-		[JsonIgnore]
-		public int Level
+		public Statistics Statistics
 		{
-			get { return level; }
-			set { if (level == value) return; level = value; SetDirty(); }
+			get { return statistics; }
+			set { if (statistics == value) return; statistics = value; SetDirty(); }
 		}
 		
 		[OnDeserialized]
@@ -39,9 +34,11 @@ namespace Balancy.Data
 			}
 			resources.SubscribeForChanges(SetDirty);
 			
-			if (purchases == null)
-				purchases = new SmartList<PurchaseInfo>();
-			purchases.SubscribeForChanges(SetDirty);
+			if (statistics == null) {
+				statistics = new Statistics();
+				statistics.OnDeserializedMethod(context);
+			}
+			statistics.SubscribeForChanges(SetDirty);
 		}
 
 		public static Profile Instantiate()

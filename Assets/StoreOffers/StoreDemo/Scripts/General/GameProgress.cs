@@ -32,23 +32,23 @@ public static class GameProgress
 
     public static void IncreaseLevel()
     {
-        _currentProgress.Level++;
+        _currentProgress.Statistics.Level++;
         GlobalEvents.InvokePlayerLevelChanged(_currentProgress);
     }
 
     public static void DecreaseLevel()
     {
-        if (_currentProgress.Level <= 1)
+        if (_currentProgress.Statistics.Level <= 1)
             return;
         
-        _currentProgress.Level--;
+        _currentProgress.Statistics.Level--;
         GlobalEvents.InvokePlayerLevelChanged(_currentProgress);
     }
 
     public static void ResetProgress()
     {
-        _currentProgress.Level = 1;
-        _currentProgress.Purchases.Clear();
+        _currentProgress.Statistics.Level = 1;
+        _currentProgress.Statistics.Purchases.Clear();
         _currentProgress.Resources.ItemSlots.Clear();
         _currentProgress.Resources.Config = null;
         _currentProgress.ValidateAndFix();

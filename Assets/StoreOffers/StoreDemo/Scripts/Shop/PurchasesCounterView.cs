@@ -32,6 +32,6 @@ public class PurchasesCounterView : MonoBehaviour
 
     private void Refresh(Profile profile)
     {
-        _text.text = profile.Purchases.Count.ToString();
+        _text.text = profile.Statistics.Purchases.Count.ToString();
     }
 }
