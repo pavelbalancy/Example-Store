@@ -5,7 +5,7 @@ namespace Balancy.Models
 {
 #pragma warning disable 649
 
-	public class ConditionBase : BaseModel
+	public class ConditionOr : ConditionLogic
 	{
 
 

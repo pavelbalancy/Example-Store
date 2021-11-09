@@ -11,6 +11,7 @@ namespace Balancy
 
 		public static List<ItemModel> ItemModels { get; private set; }
 		public static List<InventoryConfig> InventoryConfigs { get; private set; }
+		public static List<GameEvent> GameEvents { get; private set; }
 		public static List<StoreOffer> StoreOffers { get; private set; }
 		public static DefaultProfile DefaultProfile { get; private set; }
 
@@ -35,6 +36,21 @@ namespace Balancy
 					InventoryConfigs.Add(child);
 			}
 
+			ParseDictionary<ConditionLogic>();
+
+			ParseDictionary<ConditionAnd>();
+
+			var gameEventWrapper = ParseDictionary<GameEvent>();
+			if (gameEventWrapper == null || gameEventWrapper.List == null)
+				GameEvents = new List<GameEvent>(0);
+			else {
+				GameEvents = new List<GameEvent>(gameEventWrapper.List.Length);
+				foreach (var child in gameEventWrapper.List)
+					GameEvents.Add(child);
+			}
+
+			ParseDictionary<ConditionOr>();
+
 			var storeOfferWrapper = ParseDictionary<StoreOffer>();
 			if (storeOfferWrapper == null || storeOfferWrapper.List == null)
 				StoreOffers = new List<StoreOffer>(0);
@@ -44,6 +60,8 @@ namespace Balancy
 					StoreOffers.Add(child);
 			}
 
+
+			ParseDictionary<ConditionEvent>();
 
 			var defaultProfileWrapper = ParseDictionary<DefaultProfile>();
 			if (defaultProfileWrapper != null && defaultProfileWrapper.List != null && defaultProfileWrapper.List.Length > 0 && defaultProfileWrapper.Config != null)
@@ -61,6 +79,8 @@ namespace Balancy
 				DefaultProfile = null;
 
 			ParseDictionary<ConditionBase>();
+
+			ParseDictionary<ConditionDateRange>();
 
 			ParseDictionary<ConditionPlayerLevel>();
 

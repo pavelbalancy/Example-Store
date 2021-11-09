@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Balancy;
 using Balancy.Data;
@@ -53,7 +54,7 @@ public class WinShop : MonoBehaviour
         var list = new List<StoreOffer>();
         foreach (var offer in DataEditor.StoreOffers)
         {
-            if (_conditionChecker.AreAllConditionsComplete(offer.Conditions))
+            if (_conditionChecker.IsConditionsComplete(offer.Condition))
                 list.Add(offer);
         }
 

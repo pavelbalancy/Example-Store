@@ -9,6 +9,9 @@ namespace Balancy.Models
 	{
 
 		[JsonProperty]
+		private string unnyIdCondition;
+		private ConditionLogic condition;
+		[JsonProperty]
 		private string[] unnyIdConditions;
 		private ConditionBase[] conditions;
 
@@ -24,6 +27,17 @@ namespace Balancy.Models
 
 		[JsonProperty("order")]
 		public readonly int Order;
+
+		[JsonIgnore]
+		public ConditionLogic Condition
+		{
+			get
+			{
+				if (condition == null)
+					condition = DataEditor.GetModelByUnnyId<ConditionLogic>(unnyIdCondition);
+				return condition;
+			}
+		}
 
 		[JsonProperty("items")]
 		public readonly ItemWithAmount[] Items;
