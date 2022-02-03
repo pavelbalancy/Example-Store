@@ -8,9 +8,9 @@ using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
-using UnityEngine.Networking;
 using Balancy.Addressables;
 using Newtonsoft.Json;
+using UnityEngine.Networking;
 using Object = UnityEngine.Object;
 
 namespace Balancy.Editor
@@ -18,60 +18,6 @@ namespace Balancy.Editor
     [InitializeOnLoad]
     public static class AddressablesHelper
     {
-        private class ServerRequest : Utils.IRequestInfo
-        {
-            public string Url { get; }
-            public Dictionary<string, string> Headers { get; }
-            public Dictionary<string, object> Body { get; }
-            public bool IsMultipart { get; set; }
-            public List<Utils.ImageInfo> Images { get; }
-
-            public string Method;
-
-            public string GetMethod()
-            {
-                return Method;
-            }
-
-            public ServerRequest(string url)
-            {
-                Url = Constants.GeneralConstants.ADMINKA_API_URL + url;
-                Headers = new Dictionary<string, string>();
-                Body = new Dictionary<string, object>();
-                Images = new List<Utils.ImageInfo>();
-                Method = "POST";
-            }
-
-            public ServerRequest SetHeader(string key, string value)
-            {
-                if (Headers.ContainsKey(key))
-                    Headers[key] = value;
-                else
-                    Headers.Add(key, value);
-                return this;
-            }
-            
-            public ServerRequest AddBody(string key, object value)
-            {
-                Body.Add(key, value);
-                return this;
-            }
-
-            public ServerRequest AddTexture(Texture2D img, string name, string prefabName)
-            {
-                Images.Add(new Utils.ImageInfo(img, name, prefabName));
-
-                return this;
-            }
-            
-            public ServerRequest SetMultipart()
-            {
-                IsMultipart = true;
-
-                return this;
-            }
-        }
-
         private class FullInfo
         {
             public AddressablesGroup[] groups;
@@ -120,7 +66,7 @@ namespace Balancy.Editor
         private class GameInfo
         {
             public string GameId;
-            public string Private;
+            public string Token;
             public Constants.Environment Environment;
             public Action<string, float> OnProgress;
             public Action<string> OnComplete;
@@ -131,7 +77,7 @@ namespace Balancy.Editor
             Balancy_Editor.SynchAddressablesEvent += SynchAddressables;
         }
 
-        public static void SynchAddressables(string gameId, string privateKey, Constants.Environment environment, Action<string, float> onProgress, Action<string> onComplete)
+        public static void SynchAddressables(string gameId, string token, Constants.Environment environment, Action<string, float> onProgress, Action<string> onComplete)
         {
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             if (settings == null)
@@ -143,7 +89,7 @@ namespace Balancy.Editor
             var gameInfo = new GameInfo
             {
                 GameId = gameId,
-                Private = privateKey,
+                Token = token,
                 Environment = environment,
                 OnProgress = onProgress,
                 OnComplete = onComplete
@@ -231,9 +177,9 @@ namespace Balancy.Editor
         private static void SendInfoToServer(FullInfo info, GameInfo gameInfo)
         {
             var helper = EditorCoroutineHelper.Create();
-            var req = new ServerRequest("/v1/check_assets");
+            var req = new EditorUtils.ServerRequest("/v1.1/check_assets");
             req.SetHeader("Content-Type", "application/json")
-                .SetHeader("Authorization", "Basic " + gameInfo.Private)
+                .SetHeader("Authorization", "Bearer " + gameInfo.Token)
                 .SetHeader("game-id", gameInfo.GameId)
                 .AddBody("groups", info.groups)
                 .AddBody("env", (int) gameInfo.Environment);
@@ -289,8 +235,8 @@ namespace Balancy.Editor
 
                 gameInfo.OnProgress?.Invoke(fileInfo.name, (float)uploadedFiles / guids.Length);
                 uploadedFiles++;
-                var req = new ServerRequest("/v1/upload_img");
-                req.SetHeader("Authorization", "Basic " + gameInfo.Private)
+                var req = new EditorUtils.ServerRequest("/v1.1/upload_img");
+                req.SetHeader("Authorization", "Bearer " + gameInfo.Token)
                     .SetHeader("game-id", gameInfo.GameId)
                     .AddBody("guid", guid)
                     .AddBody("hash", fileInfo.hash)
@@ -335,21 +281,60 @@ namespace Balancy.Editor
         
             var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(fileInfo.texturePath);
 
-            var scaleX = (float) maxSize.x / texture.width;
-            var scaleY = (float) maxSize.y / texture.height;
-            var scale = Mathf.Min(scaleX, scaleY);
+            Texture2D newTexture = null;
+            if (texture.width > maxSize.x && texture.height > maxSize.y)
+            {
+                var scaleX = (float) maxSize.x / texture.width;
+                var scaleY = (float) maxSize.y / texture.height;
+                var scale = Mathf.Min(scaleX, scaleY);
 
-            int newWidth = Mathf.RoundToInt(scale * texture.width);
-            int newHeight = Mathf.RoundToInt(scale * texture.height);
+                int newWidth = Mathf.RoundToInt(scale * texture.width);
+                int newHeight = Mathf.RoundToInt(scale * texture.height);
 
-            var newTexture = Utils.ScaleTexture(texture, newWidth, newHeight);
-            
+                newTexture = ScaleTexture(texture, newWidth, newHeight);
+            }
+            else
+            {
+                newTexture = CopyTexture(texture);
+            }
+
             tImporter.isReadable = false;
             AssetDatabase.ImportAsset(fileInfo.texturePath);
             AssetDatabase.Refresh();
-        
+
             return newTexture;
-        } 
+        }
+
+        private static Texture2D CopyTexture(Texture2D source)
+        {
+            Texture2D texture2D = new Texture2D(source.width, source.height, TextureFormat.RGBA32, true);
+            texture2D.SetPixels(source.GetPixels(), 0);
+            texture2D.Apply();
+
+            return texture2D;
+        }
+
+        private static Texture2D ScaleTexture(Texture2D source, int targetWidth, int targetHeight)
+        {
+            Texture2D texture2D = new Texture2D(targetWidth, targetHeight, TextureFormat.RGBA32, true);
+            Color[] pixels = texture2D.GetPixels(0);
+            Color[] sourcePixels = source.GetPixels(0);
+            
+            float num1 = 1f / (float) targetWidth;
+            float num2 = 1f / (float) targetHeight;
+            for (int index = 0; index < pixels.Length; ++index)
+            {
+                var tx = (index % targetWidth) * num1;
+                var ty = (index / targetWidth) * num2;
+                var sx = Mathf.RoundToInt(tx * source.width);
+                var sy = Mathf.RoundToInt(ty * source.height);
+                pixels[index] = sourcePixels[sx + sy * source.width];
+            }
+
+            texture2D.SetPixels(pixels, 0);
+            texture2D.Apply();
+            return texture2D;
+        }
 
         private static Dictionary<string, FileInfo> MapFiles(FullInfo info)
         {
