@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_EDITOR && !BALANCY_SERVER
+using System;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
@@ -94,7 +95,7 @@ namespace Balancy.Editor
             }
         }
 
-        private class AuthResponse
+        internal class AuthResponse
         {
             [JsonProperty("accessToken")]
             public string AccessToken;
@@ -102,11 +103,14 @@ namespace Balancy.Editor
             public string Email;
         }
         
-        private class UserInfo : AuthResponse
+        internal class UserInfo : AuthResponse
         {
             [JsonProperty("selectedGameId")]
             public string SelectedGameId { get; private set; }
 
+            [JsonProperty("selectedServer")]
+            public int SelectedServer { get; private set; }
+            
             public void Save()
             {
                 Balancy.Dictionaries.FileHelper.CheckFolder(USER_INFO_FOLDER);
@@ -114,9 +118,23 @@ namespace Balancy.Editor
                 File.WriteAllText(USER_INFO_PATH, text);
             }
 
+            public static UserInfo InitDefault()
+            {
+                var info = new UserInfo();
+                info.Save();
+
+                return info;
+            }
+
             public void SetSelectedGameId(string gameId)
             {
                 SelectedGameId = gameId;
+                Save();
+            }
+            
+            public void SetServerType(int type)
+            {
+                SelectedServer = type;
                 Save();
             }
         }
@@ -133,7 +151,13 @@ namespace Balancy.Editor
             {
                 var allText = File.ReadAllText(USER_INFO_PATH);
                 _userInfo = JsonConvert.DeserializeObject<UserInfo>(allText);
+                if (_userInfo == null)
+                    _userInfo = UserInfo.InitDefault();
                 _userEmail = _userInfo?.Email;
+            }
+            else
+            {
+                _userInfo = UserInfo.InitDefault();
             }
 
             _parent = parent;
@@ -235,16 +259,16 @@ namespace Balancy.Editor
                 {
                     _gamesInfo = JsonConvert.DeserializeObject<GamesInfo>(data);
                     _gamesInfo.Init(_userInfo);
-                    _loadingGames = false;
                 }
                 else
                     LogOut();
+                _loadingGames = false;
             });
         }
 
         private void LogOut()
         {
-            _userInfo = null;
+            _userInfo = UserInfo.InitDefault();
             _gamesInfo = null;
         }
 
@@ -264,7 +288,7 @@ namespace Balancy.Editor
                 // .SetHeader("Accept", "application/json")
                 .SetHeader("authorization", "Bearer " + _userInfo.AccessToken);
             
-            var cor = Utils.SendRequest(req, request =>
+            var cor = UnityUtils.SendRequest(req, request =>
             {
 #if UNITY_2020_1_OR_NEWER
                 if (request.result != UnityWebRequest.Result.Success)
@@ -293,7 +317,7 @@ namespace Balancy.Editor
                 .AddBody("email", email)
                 .AddBody("password", password);
 
-            var cor = Utils.SendRequest(req, request =>
+            var cor = UnityUtils.SendRequest(req, request =>
             {
 #if UNITY_2020_1_OR_NEWER
                 if (request.result != UnityWebRequest.Result.Success)
@@ -322,5 +346,11 @@ namespace Balancy.Editor
         {
             return _gamesInfo.GetSelectedGameInfo();
         }
+
+        internal UserInfo GetUserInfo()
+        {
+            return _userInfo;
+        }
     }
 }
+#endif

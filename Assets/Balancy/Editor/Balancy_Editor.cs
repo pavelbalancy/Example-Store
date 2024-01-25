@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_EDITOR && !BALANCY_SERVER
+using System;
 using UnityEngine;
 using UnityEditor;
 
@@ -7,15 +8,22 @@ namespace Balancy.Editor
     [ExecuteInEditMode]
     public class Balancy_Editor : EditorWindow
     {
-        public delegate void SynchAddressablesDelegate(string gameId, string token, Constants.Environment environment, Action<string, float> onProgress, Action<string> onComplete);
+        public delegate void SynchAddressablesDelegate(string gameId, string token, Constants.Environment environment, Action<string, float> onProgress, Action onStart, Action<string> onComplete);
         public static event SynchAddressablesDelegate SynchAddressablesEvent;
 
-        [MenuItem("Tools/Balancy", false, -100000)]
+        [MenuItem("Tools/Balancy/Config", false, -104002)]
         public static void ShowWindow()
         {
             var window = GetWindow(typeof(Balancy_Editor));
-            window.titleContent.text = "Balancy";
+            window.titleContent.text = "Balancy Config";
             window.titleContent.image = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Balancy/Editor/BalancyLogo.png");
+        }
+        
+        [MenuItem("Tools/Balancy/Open PersistentDataPath ", false, -103000)]
+        public static void OpenPersistentDataPath()
+        {
+            var path = Application.persistentDataPath;
+            EditorUtility.RevealInFinder(path);
         }
 
         private void Awake()
@@ -24,15 +32,13 @@ namespace Balancy.Editor
         }
 
         readonly string[] SERVER_TYPE = {"Development", "Stage", "Production"};
-        private Balancy_Plugins plugins;
         private Balancy_EditorAuth _authHelper;
         
-        private int _selectedServer;
         private bool _downloading;
+        private int _versionNumber;
         private float _downloadingProgress;
         private string _downloadingFileName;
         
-        private Balancy_Plugins Plugins => plugins ?? (plugins = new Balancy_Plugins(this));
         private Balancy_EditorAuth AuthHelper => _authHelper ?? (_authHelper = new Balancy_EditorAuth(this));
 
         private void OnEnable()
@@ -58,8 +64,6 @@ namespace Balancy.Editor
             RenderSettings();
             EditorGUILayout.Space();
             RenderLoader();
-            EditorGUILayout.Space();
-            Plugins.Render();
         }
         
         private void RenderSettings()
@@ -69,11 +73,15 @@ namespace Balancy.Editor
 
         private void RenderLoader()
         {
-            GUI.enabled = !_downloading && AuthHelper.HasSelectedGame();
+            GUI.enabled = !_downloading && AuthHelper.HasSelectedGame() && !EditorApplication.isCompiling;
             GUILayout.BeginVertical(EditorStyles.helpBox);
 
             GUILayout.Label("Data Editor");
-            _selectedServer = GUILayout.SelectionGrid(_selectedServer, SERVER_TYPE, SERVER_TYPE.Length, EditorStyles.radioButton);
+            var curServer = AuthHelper.GetUserInfo().SelectedServer;
+
+            var newServer = GUILayout.SelectionGrid(curServer, SERVER_TYPE, SERVER_TYPE.Length, EditorStyles.radioButton);
+            if (newServer != curServer)
+                AuthHelper.GetUserInfo().SetServerType(newServer);
 
             if (_downloading)
             {
@@ -95,10 +103,39 @@ namespace Balancy.Editor
                     StartSynchingAddressables();
                 
                 GUILayout.EndHorizontal();
+                
+                EditorGUILayout.Space();
+                EditorGUILayout.Space();
+                RenderVersionLoader();
+                
+                EditorGUILayout.Space();
+                EditorGUILayout.Space();
+                RenderSmartObjects();
             }
 
             GUILayout.EndVertical();
             GUI.enabled = true;
+        }
+        
+        private void RenderVersionLoader()
+        {
+            GUILayout.Label("Download a Specific Balance Version");
+            GUILayout.BeginHorizontal();
+            var stringNumber = EditorGUILayout.TextField("Version Number: ", _versionNumber.ToString());
+            int.TryParse(stringNumber, out _versionNumber);
+            
+            if (GUILayout.Button("Download Data"))
+                StartDownloading(_versionNumber);
+            GUILayout.EndHorizontal();
+        }
+        
+        private void RenderSmartObjects()
+        {
+            GUILayout.Label("Clear the latest user profile completely");
+            if (GUILayout.Button("Reset"))
+            {
+                ResetAll();
+            }
         }
 
         private void StartCodeGeneration()
@@ -106,14 +143,15 @@ namespace Balancy.Editor
             _downloading = true;
             _downloadingProgress = 0.5f;
             _downloadingFileName = "Generating the code...";
-            var gameInfo = _authHelper.GetSelectedGameInfo();
-            var token = _authHelper.GetAccessToken();
+
+            var gameInfo = AuthHelper.GetSelectedGameInfo();
+            var token = AuthHelper.GetAccessToken();
             Balancy_CodeGeneration.StartGeneration(
                 gameInfo.GameId,
                 token,
-                (Constants.Environment) _selectedServer,
+                (Constants.Environment) AuthHelper.GetUserInfo().SelectedServer,
                 () => { _downloading = false; },
-                Plugins.AutoGeneratedCodePath
+                PluginUtils.CODE_GENERATION_PATH
             );
         }
 
@@ -125,19 +163,22 @@ namespace Balancy.Editor
             }
             else
             {
-                _downloading = true;
-                _downloadingProgress = 0f;
-                _downloadingFileName = "Synchronizing addressables...";
-                var gameInfo = _authHelper.GetSelectedGameInfo();
-                var token = _authHelper.GetAccessToken();
+                var gameInfo = AuthHelper.GetSelectedGameInfo();
+                var token = AuthHelper.GetAccessToken();
                 SynchAddressablesEvent(
                     gameInfo.GameId,
                     token,
-                    (Constants.Environment) _selectedServer,
+                    (Constants.Environment) AuthHelper.GetUserInfo().SelectedServer,
                     (fileName, progress) =>
                     {
                         _downloadingFileName = fileName;
                         _downloadingProgress = progress;
+                    },
+                    () =>
+                    {
+                        _downloading = true;
+                        _downloadingProgress = 0f;
+                        _downloadingFileName = "Synchronizing addressables...";  
                     },
                     (error) =>
                     {
@@ -151,17 +192,17 @@ namespace Balancy.Editor
             }
         }
 
-        private void StartDownloading()
+        private void StartDownloading(int versionNumber = 0)
         {
             _downloading = true;
             _downloadingProgress = 0;
 
-            var gameInfo = _authHelper.GetSelectedGameInfo();
+            var gameInfo = AuthHelper.GetSelectedGameInfo();
             var appConfig = new AppConfig
             {
                 ApiGameId = gameInfo.GameId,
                 PublicKey = gameInfo.PublicKey,
-                Environment = (Constants.Environment) _selectedServer
+                Environment = (Constants.Environment) AuthHelper.GetUserInfo().SelectedServer
             };
             
             DicsHelper.LoadDocs(appConfig, responseData =>
@@ -173,7 +214,15 @@ namespace Balancy.Editor
             {
                 _downloadingFileName = fileName;
                 _downloadingProgress = progress;
-            });
+            }, versionNumber);
+        }
+        
+        private void ResetAll()
+        {
+            var gameInfo = AuthHelper.GetSelectedGameInfo();
+            DataEditor.ResetAllProfiles(gameInfo.GameId, (Constants.Environment) AuthHelper.GetUserInfo().SelectedServer);
+            EditorUtility.DisplayDialog("Success", "The profile was erased.", "Thanks");
         }
     }
 }
+#endif

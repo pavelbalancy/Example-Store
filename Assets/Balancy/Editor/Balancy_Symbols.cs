@@ -1,4 +1,4 @@
-﻿#if !BALANCY_CREATOR
+﻿#if !BALANCY_CREATOR && !BALANCY_SERVER
 using System;
 using UnityEngine;
 using UnityEditor;
@@ -13,7 +13,7 @@ namespace Balancy.Editor
         [UnityEditor.Callbacks.DidReloadScripts]
         public static void OnScriptsReloaded()
         {
-            AddBalancySymbols(BalancyDefine);
+            // AddBalancySymbols(BalancyDefine);
             CheckBalancyMainClass();
         }
         
@@ -66,10 +66,12 @@ namespace Balancy.Editor
 
         private static void CheckBalancyMainClass()
         {
+#if !BALANCY_DEV
             var type = Type.GetType("Balancy.Main, Balancy");
             bool classExists = (null != type);
             if (!classExists)
                 PluginUtils.GenerateCodeForStartFileExternal();
+#endif
         }
     }
 }

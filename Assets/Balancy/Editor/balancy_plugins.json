@@ -1,19 +1,19 @@
 {
     "editor": {
-        "url": "http://u3d.as/1jis",
-        "version": "2.4.1",
-        "min_version": "2.4.1"
+        "url": "https://data.un-cdn.unnyplay.com/config/Packages/balancy_latest.unitypackage",
+        "version": "3.7.11",
+        "min_version": "3.7.11"
     },
     "plugins": [
         {
             "name": "Balancy",
-            "version": "2.4.1",
+            "version": "4.3.40",
             "description": "Main plugin, mandatory to work",
             "can_be_removed": false,
             "download": [
                 {
-                    "url": "https://dictionaries-unnynet.fra1.cdn.digitaloceanspaces.com/config/Balancy.dll",
-                    "file": "Plugins/Balancy.dll"
+                    "url": "https://data.un-cdn.unnyplay.com/config/BalancyLib.dll",
+                    "file": "Plugins/BalancyLib.dll"
                 }
             ],
             "dependencies": [],

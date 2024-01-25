@@ -4,13 +4,11 @@ using UnityEngine;
 
 public static class GameProgress
 {
-    private const string PROFILE_KEY = "ProfileKey";
-
     private static Profile _currentProgress;
     
     public static void LoadProfile()
     {
-        Storage.LoadSmartObject<Profile>(PROFILE_KEY, responseData =>
+        SmartStorage.LoadSmartObject<Profile>(responseData =>
         {
             Debug.Log("LoadProfile response = " + responseData.Success);
             if (responseData.Success)
